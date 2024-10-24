@@ -225,7 +225,7 @@ const PageContent = () => {
                 .codex-editor {
                     padding: 0 !important;
                 }
-                
+
                 .ce-block__content {
                     max-width: 100% !important;
                     margin: 0;
@@ -241,7 +241,7 @@ const PageContent = () => {
                     padding: 3px 2px;
                     position: relative;
                 }
-                
+
                 .ce-paragraph {
                     padding: 3px 2px;
                     min-height: 30px;
