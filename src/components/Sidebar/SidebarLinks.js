@@ -1,10 +1,18 @@
 import React from 'react';
-import { House, Inbox } from 'lucide-react';
+import {House, Inbox, Search} from 'lucide-react';
 
 const SidebarLinks = () => {
     return (
         <div className="flex-1 overflow-y-auto">
             <div className="px-1 py-2">
+                {/* Search bar */}
+                <div className="flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded hover:bg-gray-200">
+                    <Search className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                    <input
+                        className="bg-transparent text-sm outline-none flex-1 text-gray-700 min-w-0"
+                        placeholder="검색"
+                    />
+                </div>
                 <div className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center cursor-pointer">
                     <House className="h-5 w-5 mr-2 text-gray-500"/> 홈
                 </div>
