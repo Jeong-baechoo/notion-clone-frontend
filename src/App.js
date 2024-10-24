@@ -141,7 +141,7 @@ const NotionPage = () => {
             {/* Page title */}
             <div className="mb-10">
               <div
-                className="text-4xl font-bold text-gray-800 mb-1 outline-none empty:before:content-['새_페이지'] empty:before:text-gray-400"
+                className="text-4xl font-bold text-gray-800 mb-1 outline-none empty:before:content-['새_페이지'] empty:before:text-stone-200"
                 contentEditable="true"
                 suppressContentEditableWarning={true}
                 spellCheck={false}
@@ -155,7 +155,7 @@ const NotionPage = () => {
 
             {/* Editable content */}
             <div
-              className="min-h-[calc(100vh-16rem)] w-full outline-none prose prose-sm max-w-none empty:before:content-['여기에_입력하세요...'] empty:before:text-gray-400"
+              className="min-h-[calc(100vh-16rem)] w-full outline-none prose prose-sm max-w-none empty:before:content-['여기에_입력하세요...'] empty:before:text-stone-400"
               contentEditable="true"
               suppressContentEditableWarning={true}
               spellCheck={false}
