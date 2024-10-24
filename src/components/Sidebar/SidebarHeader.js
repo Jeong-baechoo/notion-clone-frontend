@@ -11,15 +11,16 @@ const SidebarHeader = ({ toggleSidebar, isHoveringTitle, setIsHoveringTitle }) =
                 <div className="flex-1 flex items-center justify-between pr-2">
                     <div
                         className="flex items-center space-x-2 group cursor-pointer"
-                        onMouseEnter={() => setIsHoveringTitle(true)}
-                        onMouseLeave={() => setIsHoveringTitle(false)}
                     >
                         <span className="text-sm text-gray-700">열린 작업 No...</span>
                         <ChevronDown className="h-4 w-4 text-gray-500" />
                     </div>
 
                     {/* Close button with hover effect */}
-                    <div className={`transition-opacity duration-200 ${isHoveringTitle ? 'opacity-100' : 'opacity-0'}`}>
+                    <div
+                        onMouseEnter={() => setIsHoveringTitle(true)}
+                        onMouseLeave={() => setIsHoveringTitle(false)}
+                        className={`transition-opacity duration-200 ${isHoveringTitle ? 'opacity-100' : 'opacity-0'}`}>
                         <IconButton onClick={toggleSidebar}>
                             <ChevronsLeft className="h-5 w-5 text-gray-500" />
                         </IconButton>
