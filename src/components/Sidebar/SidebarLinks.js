@@ -1,5 +1,5 @@
 import React from 'react';
-import {House, Inbox, Search} from 'lucide-react';
+import { House, Inbox, Search } from 'lucide-react';
 
 const SidebarLinks = () => {
     return (
@@ -13,34 +13,40 @@ const SidebarLinks = () => {
                         placeholder="검색"
                     />
                 </div>
-                <div className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center cursor-pointer">
+
+                {/* Main Links */}
+                <div className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded flex items-center cursor-pointer">
                     <House className="h-5 w-5 mr-2 text-gray-500"/> 홈
                 </div>
-                <div className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center cursor-pointer">
+                <div className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded flex items-center cursor-pointer">
                     <Inbox className="h-5 w-5 mr-2 text-gray-500"/> 수신함
                 </div>
+
+                {/* Favorites */}
                 <div className="mt-4">
                     <div className="px-3 mb-2 text-xs font-medium text-gray-500">즐겨찾기</div>
                     <div
-                        className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center cursor-pointer">
+                        className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded flex items-center cursor-pointer">
                         <div className="mr-2">⭐</div>
                         빠른 참조
                     </div>
                 </div>
+
+                {/* Workspace */}
                 <div className="mt-4">
                     <div className="px-3 mb-2 text-xs font-medium text-gray-500">워크스페이스</div>
                     <div
-                        className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center cursor-pointer">
+                        className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded flex items-center cursor-pointer">
                         <div className="mr-2">📄</div>
                         개인 페이지
                     </div>
                     <div
-                        className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center cursor-pointer">
+                        className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded flex items-center cursor-pointer">
                         <div className="mr-2">📚</div>
                         공유된 페이지
                     </div>
                     <div
-                        className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center cursor-pointer">
+                        className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded flex items-center cursor-pointer">
                         <div className="mr-2">🗑️</div>
                         휴지통
                     </div>
