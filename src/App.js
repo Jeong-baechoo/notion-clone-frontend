@@ -141,7 +141,7 @@ const NotionPage = () => {
             {/* Page title */}
             <div className="mb-10">
               <div
-                className="text-4xl font-bold text-gray-800 mb-1 outline-none empty:before:content-['제목_없음'] empty:before:text-gray-400"
+                className="text-4xl font-bold text-gray-800 mb-1 outline-none empty:before:content-['새_페이지'] empty:before:text-gray-400"
                 contentEditable="true"
                 suppressContentEditableWarning={true}
                 spellCheck={false}
