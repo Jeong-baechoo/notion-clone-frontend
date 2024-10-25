@@ -207,6 +207,116 @@ const PageContent = () => {
                     저장 중...
                 </div>
             )}
+
+            <style jsx global>{`
+                .codex-editor {
+                    padding: 0 !important;
+                }
+                
+                .ce-block__content {
+                    max-width: 100% !important;
+                    margin: 0;
+                    position: relative;
+                }
+
+                .ce-toolbar__content {
+                    max-width: 100% !important;
+                    margin: 0;
+                }
+
+                .ce-block {
+                    padding: 3px 2px;
+                    position: relative;
+                }
+                
+                .ce-paragraph {
+                    padding: 3px 2px;
+                    min-height: 30px;
+                    font-size: 16px;
+                    line-height: 24px;
+                }
+
+                /* 드래그 중인 블록 스타일 */
+                .ce-block--dragging {
+                    opacity: 0.3;
+                    background: transparent !important;
+                }
+
+                /* 드롭 타겟 스타일 */
+                .ce-block--drop-target::before {
+                    content: '';
+                    position: absolute;
+                    top: -2px;
+                    left: 0;
+                    right: 0;
+                    height: 2px;
+                    background: #2563EB;
+                    opacity: 1;
+                    transition: opacity 0.2s ease;
+                }
+
+                .ce-block--drop-target:last-child::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    right: 0;
+                    height: 2px;
+                    background: #2563EB;
+                    opacity: 1;
+                    transition: opacity 0.2s ease;
+                }
+
+                /* 호버/선택 스타일 */
+                .ce-block--selected {
+                    background: transparent;
+                }
+
+                .ce-block:hover {
+                    background: transparent;
+                }
+
+                /* 드래그 핸들 */
+                .ce-block--draggable {
+                    cursor: grab;
+                }
+
+                .ce-block--dragging * {
+                    cursor: grabbing !important;
+                    pointer-events: none;
+                }
+
+                /* 툴바 */
+                .ce-toolbar__plus {
+                    color: #374151;
+                    background: #F3F4F6;
+                }
+
+                .ce-toolbar__plus:hover {
+                    background: #E5E7EB;
+                }
+
+                .ce-toolbar__settings-btn {
+                    color: #374151;
+                    background: #F3F4F6;
+                }
+
+                .ce-toolbar__settings-btn:hover {
+                    background: #E5E7EB;
+                }
+
+                /* 이미지 블록 */
+                .image-tool {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .image-tool__image {
+                    max-width: 100%;
+                    width: auto;
+                }
+            `}</style>
         </div>
     );
 };
