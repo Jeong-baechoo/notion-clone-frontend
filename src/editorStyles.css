@@ -1,0 +1,41 @@
+/* editorStyles.css */
+
+/* EditorJS 컨테이너 스타일 */
+.editorjs-holder {
+    border: 1px solid #e5e7eb; /* Tailwind의 gray-200 */
+    padding: 16px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    min-height: 400px; /* 최소 높이 설정 */
+}
+
+/* 콘텐츠 블록 스타일 조정 */
+.ce-block__content {
+    max-width: 100% !important;
+    margin: 0;
+}
+
+/* 툴바 스타일 조정 */
+.ce-toolbar__content {
+    max-width: 100% !important;
+    margin: 0;
+}
+
+/* 단락 줄 간격 */
+.ce-paragraph {
+    line-height: 1.6;
+}
+
+/* 선택된 블록 배경색 */
+.ce-block--selected .ce-block__content {
+    background: #f8f9fa; /* Tailwind의 gray-100 */
+}
+
+/* 추가적인 툴바 버튼 스타일 */
+.ce-toolbar__button {
+    color: #6b7280; /* Tailwind의 gray-500 */
+}
+
+.ce-toolbar__button:hover {
+    color: #4b5563; /* Tailwind의 gray-600 */
+}

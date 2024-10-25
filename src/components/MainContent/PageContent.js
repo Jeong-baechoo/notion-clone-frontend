@@ -5,8 +5,25 @@ import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
 import Marker from '@editorjs/marker';
 import InlineCode from '@editorjs/inline-code';
-import ImageTool from '@editorjs/image';
 import DragDrop from 'editorjs-drag-drop';
+import { debounce } from 'lodash';
+import axios from 'axios';
+
+const EDITOR_HOLDER_ID = 'editorjs';
+
+// Initial data setup
+const DEFAULT_INITIAL_DATA = {
+    time: new Date().getTime(),
+    blocks: [
+        {
+            type: 'header',
+            data: {
+                text: 'This is my awesome editor!',
+                level: 1,
+            },
+        },
+    ],
+};
 
 const EDITOR_JS_TOOLS = {
     header: {
@@ -15,212 +32,181 @@ const EDITOR_JS_TOOLS = {
             levels: [1, 2, 3],
             defaultLevel: 1,
             inlineToolbar: true,
-        }
+        },
+        shortcut: 'CMD+ALT+1',
     },
     list: {
         class: List,
         inlineToolbar: true,
         config: {
-            defaultStyle: 'unordered'
-        }
+            defaultStyle: 'unordered',
+        },
+        shortcut: 'CMD+SHIFT+8',
     },
     paragraph: {
         class: Paragraph,
         inlineToolbar: true,
+        config: {
+            placeholder: '/ 를 입력하여 명령어를 사용하세요',
+        }
     },
     marker: {
         class: Marker,
-        shortcut: 'CMD+SHIFT+M'
+        shortcut: 'CMD+SHIFT+M',
     },
     inlineCode: {
         class: InlineCode,
-        shortcut: 'CMD+SHIFT+C'
-    },
-    image: {
-        class: ImageTool,
-        config: {
-            uploader: {
-                uploadByFile: async (file) => {
-                    try {
-                        return new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                                resolve({
-                                    success: 1,
-                                    file: {
-                                        url: reader.result
-                                    }
-                                });
-                            };
-                            reader.readAsDataURL(file);
-                        });
-                    } catch (error) {
-                        console.error('Image upload failed:', error);
-                        return { success: 0 };
-                    }
-                }
-            }
-        }
+        shortcut: 'CMD+E',
     }
 };
 
 const PageContent = () => {
     const ejInstance = useRef(null);
-    const dragDropInstance = useRef(null);
+    const holderRef = useRef(null);
+    const [editorData, setEditorData] = useState(DEFAULT_INITIAL_DATA);
     const [title, setTitle] = useState('');
-    const [isDragging, setIsDragging] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [blockCount, setBlockCount] = useState(0);
+    const dragDropInstance = useRef(null); // DragDrop 인스턴스를 위한 새로운 ref
 
+    // Title change handler
     const handleTitleChange = (e) => {
         setTitle(e.currentTarget.textContent);
     };
 
-    const handleBlockChange = async () => {
+    // Editor content save handler
+    const handleEditorSave = async () => {
         if (!ejInstance.current) return;
 
         try {
-            const data = await ejInstance.current.save();
-            setBlockCount(data.blocks.length);
+            setIsSaving(true);
+            const savedData = await ejInstance.current.save();
+            console.log('Content saved:', savedData);
+
+            // Combine title and content
+            const payload = {
+                title: title || '새 페이지',
+                content: savedData,
+            };
+
+            // Send data to server
+            await axios.post('/api/save-page', payload);
+
+            // Update local state
+            setEditorData(savedData);
         } catch (error) {
-            console.error('Failed to update blocks:', error);
+            console.error('Saving failed:', error);
+            // Optionally, show error message to the user
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-    };
-
-    const handleDrop = async (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-
-        const files = Array.from(e.dataTransfer.files);
-        const imageFiles = files.filter(file => file.type.startsWith('image/'));
-
-        if (imageFiles.length && ejInstance.current) {
-            for (const file of imageFiles) {
-                await ejInstance.current.blocks.insert('image', { file });
-            }
-        }
-    };
+    // Debounced save function
+    const debouncedSave = useRef(debounce(handleEditorSave, 2000)).current;
 
     useEffect(() => {
-        if (ejInstance.current) return;
+        let editor = null;
 
-        // Initialize Editor.js
-        const editor = new EditorJS({
-            holder: 'editorjs',
-            tools: EDITOR_JS_TOOLS,
-            autofocus: true,
-            placeholder: '여기에 입력하세요...',
-            inlineToolbar: true,
-            onChange: handleBlockChange,
-            onReady: () => {
-                // Initialize drag-drop after Editor.js is ready
-                if (!dragDropInstance.current && editor) {
-                    dragDropInstance.current = new DragDrop(editor);
-                }
-                handleBlockChange();
-            },
-            data: {
-                blocks: [
-                    {
-                        type: 'paragraph',
-                        data: {
-                            text: ''
+        const initializeEditor = async () => {
+            if (ejInstance.current || !holderRef.current) {
+                return;
+            }
+
+            try {
+                // Initialize EditorJS
+                editor = new EditorJS({
+                    holder: holderRef.current,
+                    tools: EDITOR_JS_TOOLS,
+                    placeholder: '/ 를 입력하여 명령어를 사용하세요',
+                    inlineToolbar: true,
+                    data: editorData,
+                    onChange: () => {
+                        debouncedSave();
+                    },
+                    autofocus: true,
+                    logLevel: 'ERROR',
+                    onReady: () => {
+                        console.log('Editor.js is ready to work!');
+
+                        // DragDrop 초기화를 try-catch로 감싸기
+                        try {
+                            dragDropInstance.current = new DragDrop(holderRef.current, {
+                                // options
+                            });
+                            dragDropInstance.current.listen();
+                        } catch (error) {
+                            console.error('DragDrop initialization failed:', error);
                         }
-                    }
-                ]
+                    },
+                    minHeight: 0,
+                });
+
+                ejInstance.current = editor;
+            } catch (error) {
+                console.error('Error initializing EditorJS:', error);
             }
-        });
+        };
 
-        ejInstance.current = editor;
+        initializeEditor();
 
+        // Cleanup function to destroy EditorJS instance
+        // Cleanup function
         return () => {
-            if (dragDropInstance.current) {
-                dragDropInstance.current.destroy();
-                dragDropInstance.current = null;
-            }
-            if (ejInstance.current) {
+            const cleanup = async () => {
                 try {
-                    ejInstance.current.destroy();
-                    ejInstance.current = null;
-                } catch (e) {
-                    console.error('Editor cleanup failed:', e);
+                    // DragDrop 인스턴스 정리
+                    if (dragDropInstance.current) {
+                        if (typeof dragDropInstance.current.destroy === 'function') {
+                            dragDropInstance.current.destroy();
+                        }
+                        dragDropInstance.current = null;
+                    }
+
+                    // Editor 인스턴스 정리
+                    if (ejInstance.current) {
+                        await ejInstance.current.destroy();
+                        ejInstance.current = null;
+                    }
+                } catch (error) {
+                    console.error('Cleanup failed:', error);
                 }
-            }
+            };
+
+            cleanup();
         };
     }, []);
 
     return (
-        <div className="grid h-screen" style={{ gridTemplateRows: 'auto 1fr' }}>
-            {/* Main content wrapper - auto로 늘어나는 영역 */}
-            <div className="grid" style={{ gridTemplateColumns: 'auto 1fr auto' }}>
-                {/* Left auto section (if needed) */}
-                <div className="w-auto"></div>
-
-                {/* Center content */}
-                <div className="w-full max-w-[720px] mx-auto pt-20">
-                    {/* Title Section */}
-                    <div className="mb-10">
-                        <div
-                            className="text-4xl font-bold text-gray-800 mb-1 outline-none empty:before:content-['새_페이지'] empty:before:text-stone-200"
-                            contentEditable
-                            onInput={handleTitleChange}
-                            suppressContentEditableWarning
-                            spellCheck={false}
-                            data-placeholder="제목을 입력하세요"
-                        />
-                        <div className="flex items-center text-sm text-gray-500">
-                            <span>작성자</span>
-                            <span className="mx-2">•</span>
-                            <span>{new Date().toLocaleDateString()}</span>
-                            {blockCount > 0 && (
-                                <>
-                                    <span className="mx-2">•</span>
-                                    <span>{blockCount} 블록</span>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Editor Container */}
-                    <div
-                        id="editorjs"
-                        className={`
-                            min-h-[calc(100vh-16rem)]
-                            outline-none prose prose-sm max-w-none
-                            ${isDragging ? 'border-2 border-dashed border-blue-400' : ''}
-                        `}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                    />
+        <div className="w-full max-w-4xl mx-auto px-8 py-10">
+            {/* Title Section */}
+            <div className="mb-10">
+                <div
+                    className="text-4xl font-bold text-gray-800 mb-1 outline-none empty:before:content-['새_페이지'] empty:before:text-stone-200"
+                    contentEditable
+                    onInput={handleTitleChange}
+                    suppressContentEditableWarning
+                    spellCheck={false}
+                />
+                <div className="flex items-center text-sm text-gray-500">
+                    <span>작성자</span>
+                    <span className="mx-2">•</span>
+                    <span>{new Date().toLocaleDateString()}</span>
+                    {/* blockCount 상태가 필요하다면 추가해야 합니다 */}
                 </div>
-
-                {/* Right auto section (if needed) */}
-                <div className="w-auto"></div>
             </div>
 
-            {/* Bottom section for additional content */}
-            <div className="bg-gray-50">
-                {/* Additional content can go here */}
-            </div>
+            {/* Editor Container */}
+            <div
+                ref={holderRef}
+                id={EDITOR_HOLDER_ID}
+            />
 
-            {/* Save indicator */}
+            {/* Saving indicator */}
             {isSaving && (
                 <div className="fixed top-4 right-4 flex items-center bg-gray-800 text-white px-3 py-1 rounded-md text-sm">
                     저장 중...
                 </div>
             )}
-
             <style jsx global>{`
                 .codex-editor {
                     padding: 0 !important;
