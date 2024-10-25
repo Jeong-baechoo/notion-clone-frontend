@@ -25,7 +25,6 @@ const DEFAULT_INITIAL_DATA = {
     ],
 };
 
-// EditorJS tools configuration
 const EDITOR_JS_TOOLS = {
     header: {
         class: Header,
@@ -34,6 +33,7 @@ const EDITOR_JS_TOOLS = {
             defaultLevel: 1,
             inlineToolbar: true,
         },
+        shortcut: 'CMD+ALT+1',
     },
     list: {
         class: List,
@@ -41,10 +41,14 @@ const EDITOR_JS_TOOLS = {
         config: {
             defaultStyle: 'unordered',
         },
+        shortcut: 'CMD+SHIFT+8',
     },
     paragraph: {
         class: Paragraph,
         inlineToolbar: true,
+        config: {
+            placeholder: '/ 를 입력하여 명령어를 사용하세요',
+        }
     },
     marker: {
         class: Marker,
@@ -52,19 +56,8 @@ const EDITOR_JS_TOOLS = {
     },
     inlineCode: {
         class: InlineCode,
-        shortcut: 'CMD+SHIFT+C',
-    },
-    // To add the image tool, uncomment and configure the following:
-    // image: {
-    //     class: ImageTool,
-    //     config: {
-    //         endpoints: {
-    //             byFile: '/api/upload-image', // Your image upload endpoint
-    //             byUrl: '/api/fetch-image',   // Your image fetch endpoint
-    //         },
-    //         field: 'image', // The image file field name
-    //     },
-    // },
+        shortcut: 'CMD+E',
+    }
 };
 
 const PageContent = () => {
@@ -123,15 +116,15 @@ const PageContent = () => {
                 // Initialize EditorJS
                 editor = new EditorJS({
                     holder: holderRef.current,
-                    logLevel: 'ERROR',
-                    data: editorData,
                     tools: EDITOR_JS_TOOLS,
-                    autofocus: true,
-                    placeholder: '여기에 입력하세요...',
+                    placeholder: '/ 를 입력하여 명령어를 사용하세요',
+                    inlineToolbar: true,
+                    data: editorData,
                     onChange: () => {
-                        console.log('Content changed');
                         debouncedSave();
                     },
+                    autofocus: true,
+                    logLevel: 'ERROR',
                     onReady: () => {
                         console.log('Editor.js is ready to work!');
 
@@ -184,43 +177,36 @@ const PageContent = () => {
     }, []);
 
     return (
-        <div className="flex-1 overflow-auto bg-white">
-            <div className="max-w-4xl mx-auto p-8 relative">
-                {/* Saving status indicator */}
-                {isSaving && (
-                    <div className="fixed top-4 right-4 bg-gray-800 text-white px-3 py-1 rounded-md text-sm z-50">
-                        저장 중...
-                    </div>
-                )}
-
-                {/* Page Title */}
-                <div className="mb-10">
-                    <div
-                        className="text-4xl font-bold text-gray-800 mb-1 outline-none empty:before:content-['새_페이지'] empty:before:text-stone-200 hover:bg-gray-50 px-2 py-1 rounded-md transition-colors"
-                        contentEditable
-                        onInput={handleTitleChange}
-                        suppressContentEditableWarning
-                        spellCheck={false}
-                        aria-label="Page Title"
-                        data-placeholder="제목을 입력하세요"
-                    />
-                    <div className="flex items-center text-sm text-gray-500 px-2">
-                        <span>작성자</span>
-                        <span className="mx-2">•</span>
-                        <span>{new Date().toLocaleDateString()}</span>
-                    </div>
-                </div>
-
-                {/* Editor Container */}
+        <div className="w-full max-w-4xl mx-auto px-8 py-10">
+            {/* Title Section */}
+            <div className="mb-10">
                 <div
-                    ref={holderRef} // Assign the ref here
-                    id={EDITOR_HOLDER_ID}
-                    className="min-h-[calc(100vh-16rem)] w-full outline-none prose prose-sm max-w-none [&>div]:min-h-[calc(100vh-16rem)]"
+                    className="text-4xl font-bold text-gray-800 mb-1 outline-none empty:before:content-['새_페이지'] empty:before:text-stone-200"
+                    contentEditable
+                    onInput={handleTitleChange}
+                    suppressContentEditableWarning
+                    spellCheck={false}
                 />
-
-                {/* Editor Styles */}
-                {/* Moved to editorStyles.css */}
+                <div className="flex items-center text-sm text-gray-500">
+                    <span>작성자</span>
+                    <span className="mx-2">•</span>
+                    <span>{new Date().toLocaleDateString()}</span>
+                    {/* blockCount 상태가 필요하다면 추가해야 합니다 */}
+                </div>
             </div>
+
+            {/* Editor Container */}
+            <div
+                ref={holderRef}
+                id={EDITOR_HOLDER_ID}
+            />
+
+            {/* Saving indicator */}
+            {isSaving && (
+                <div className="fixed top-4 right-4 flex items-center bg-gray-800 text-white px-3 py-1 rounded-md text-sm">
+                    저장 중...
+                </div>
+            )}
         </div>
     );
 };
